@@ -1,0 +1,30 @@
+version: '3.7'
+services:
+    mysql:
+        build:
+            context: docker/mysql
+        container_name: golang_db
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: golang_db
+            MYSQL_USER: docker
+            MYSQL_PASSWORD: docker
+        ports:
+            - "3315:3306"
+        volumes:
+            - ./data/mysql:/var/lib/mysql
+
+    app_gin:
+        build:
+            context: ./
+            dockerfile: ./docker/golang/Dockerfile
+        volumes:
+            - "./src:/go/src/app"
+        container_name: gin_app
+        # Start gin-gonic server with hot reload
+        command: gin -i -all run main.go
+        ports:
+            - "9091:8080"
+        tty: true
+        depends_on:
+            - mysql
